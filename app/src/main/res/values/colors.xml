@@ -5,4 +5,10 @@
 
     <color name="greushadetwo">#607D8B</color>
     <color name="greyshade">#455A64</color>
+
+    <color name="teal_700">#FF018786</color>
+    <color name="teal_900">#69f0ae</color>
+
+    <color name="blueshade">#3D5AFE</color>
+    <color name="blueshadetwo">#448AFF</color>
 </resources>

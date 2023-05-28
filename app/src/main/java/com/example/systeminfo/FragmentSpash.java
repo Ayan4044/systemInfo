@@ -1,17 +1,27 @@
 package com.example.systeminfo;
 
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+
+import android.Manifest;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.example.systeminfo.databinding.FragmentSpashBinding;
 
@@ -30,11 +40,15 @@ public class FragmentSpash extends Fragment {
     private static final String ARG_PARAM1="param1";
     private static final String ARG_PARAM2="param2";
 
+    private int ACCESS_PHONE_STATE = 1;
+
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private FragmentSpashBinding binding;
+
+    private static final int CAMERA_PERMISSION_CODE = 100;
 
     public FragmentSpash() {
         // Required empty public constructor
@@ -85,17 +99,79 @@ public class FragmentSpash extends Fragment {
 //
 //            }
 //        }, 2000);
+//        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.CAMERA)
+//                != PackageManager.PERMISSION_GRANTED) {
+//            // Permission is not granted, request it
+//            ActivityCompat.requestPermissions(requireActivity(),
+//                    new String[]{Manifest.permission.CAMERA},
+//                    CAMERA_PERMISSION_REQUEST_CODE);
+//        } else {
+//            Toast.makeText(requireContext(), "Camera permission granted", Toast.LENGTH_SHORT).show();
+//            // Permission is already granted, handle the camera-related operations
+//            final Handler handler = new Handler(Looper.getMainLooper());
+//            handler.postDelayed(new Runnable() {
+//                @Override
+//                public void run() {
+//                    FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+//                    transaction.replace(R.id.fragment_container, new FragmentSystemInfo());
+//                    transaction.commit();
+//                }
+//            }, 200);
+//        }
 
 
-        final Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.fragment_container, new FragmentSystemInfo());
-                transaction.commit();
+        checkPermission(Manifest.permission.CAMERA, CAMERA_PERMISSION_CODE);
+    }
+    // Function to check and request permission.
+    public void checkPermission(String permission, int requestCode)
+    {
+        if (ContextCompat.checkSelfPermission(requireActivity(), permission) == PackageManager.PERMISSION_DENIED) {
+
+            // Requesting the permission
+            requestPermissions( new String[] { permission }, requestCode);
+        }
+        else {
+            movetoNextFragment();
+          //
+            //  Toast.makeText(requireContext(), "Permission already granted", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    // This function is called when the user accepts or decline the permission.
+    // Request Code is used to check which permission called this function.
+    // This request code is provided when the user is prompt for permission.
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
+        super.onRequestPermissionsResult(requestCode,
+                permissions,
+                grantResults);
+            Log.e("Request Code",""+requestCode);
+        if (requestCode == CAMERA_PERMISSION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Toast.makeText(requireContext(), "Camera Permission Granted", Toast.LENGTH_SHORT) .show();
+                movetoNextFragment();
             }
-        }, 2000);
+            else {
+                Toast.makeText(requireContext(), "Camera Permission Denied", Toast.LENGTH_SHORT) .show();
+            }
+        }
+
+    }
+
+    private void movetoNextFragment(){
+                    final Handler handler = new Handler(Looper.getMainLooper());
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    FragmentTransaction transaction = requireActivity().getSupportFragmentManager().beginTransaction();
+                    transaction.replace(R.id.fragment_container, new FragmentSystemInfo());
+                    transaction.commit();
+                }
+            }, 200);
     }
 
     @Override
@@ -103,4 +179,10 @@ public class FragmentSpash extends Fragment {
         super.onDestroyView();
         binding = null;
     }
+
+
+
+
+
+
 }
